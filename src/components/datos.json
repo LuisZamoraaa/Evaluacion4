@@ -1,0 +1,67 @@
+{
+  "profesores": [
+    {
+      "id": 1,
+      "rut": "12345678-9",
+      "nombre": "Juan",
+      "apellido": "Pérez",
+      "edad": 45,
+      "asignatura": "Matemáticas",
+      "seccion": "A"
+    },
+    {
+      "id": 2,
+      "rut": "98765432-1",
+      "nombre": "Ana",
+      "apellido": "González",
+      "edad": 38,
+      "asignatura": "Historia",
+      "seccion": "B"
+    }
+  ],
+  "estudiantes": [
+    {
+      "id": 1,
+      "rut": "23456789-0",
+      "nombre": "Luis",
+      "apellido": "Martínez",
+      "edad": 20,
+      "asignatura": "Matemáticas",
+      "seccion": "A",
+      "rutProfesor": "12345678-9",
+      "idCurso": 1
+    },
+    {
+      "id": 2,
+      "rut": "34567890-1",
+      "nombre": "María",
+      "apellido": "Rodríguez",
+      "edad": 22,
+      "asignatura": "Historia",
+      "seccion": "B",
+      "rutProfesor": "98765432-1",
+      "idCurso": 2
+    }
+  ],
+  "cursos": [
+    {
+      "id": 1,
+      "nombre": "Curso de Matemáticas",
+      "nombreAsignatura": "Matemáticas",
+      "cantidadEstudiantes": 30,
+      "seccion": "A",
+      "rutProfesor": "12345678-9"
+    },
+    {
+      "id": 2,
+      "nombre": "Curso de Historia",
+      "nombreAsignatura": "Historia",
+      "cantidadEstudiantes": 25,
+      "seccion": "B",
+      "rutProfesor": "98765432-1"
+    }
+  ]
+}
+
+
+  
