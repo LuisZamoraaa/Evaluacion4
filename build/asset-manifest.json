@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/LuisZamoraaa/Evaluacion.git/static/css/main.8ae46745.css",
+    "main.js": "/LuisZamoraaa/Evaluacion.git/static/js/main.a0108be4.js",
+    "index.html": "/LuisZamoraaa/Evaluacion.git/index.html",
+    "main.8ae46745.css.map": "/LuisZamoraaa/Evaluacion.git/static/css/main.8ae46745.css.map",
+    "main.a0108be4.js.map": "/LuisZamoraaa/Evaluacion.git/static/js/main.a0108be4.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.8ae46745.css",
+    "static/js/main.a0108be4.js"
+  ]
+}
