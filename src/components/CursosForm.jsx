@@ -1,27 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import data from './datos.json';
+import axios from 'axios';
 
-function CursoForm() {
+function CursosForm() {
   const [cursos, setCursos] = useState([]);
   const [nombre, setNombre] = useState('');
   const [nombreAsignatura, setNombreAsignatura] = useState('');
   const [cantidadEstudiantes, setCantidadEstudiantes] = useState('');
   const [seccion, setSeccion] = useState('');
   const [rutProfesor, setRutProfesor] = useState('');
-  const [profesores, setProfesores] = useState([]);
   const [modoEdicion, setModoEdicion] = useState(false);
   const [cursoIdEditar, setCursoIdEditar] = useState(null);
   const [terminoBusqueda, setTerminoBusqueda] = useState('');
 
   useEffect(() => {
-    const storedCursos = JSON.parse(localStorage.getItem('cursos')) || data.cursos;
-    const storedProfesores = JSON.parse(localStorage.getItem('profesores')) || data.profesores;
-    setCursos(storedCursos);
-    setProfesores(storedProfesores);
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/api/cursos/import');
+        setCursos(response.data);
+      } catch (error) {
+        console.error('Error al obtener los datos:', error);
+      }
+    };
 
-    console.log('Cursos:', storedCursos);
-    console.log('Profesores:', storedProfesores);
+    fetchData();
   }, []);
 
   const agregarCurso = () => {
@@ -34,7 +36,7 @@ function CursoForm() {
     if (modoEdicion && cursoIdEditar) {
       cursosActualizados = cursos.map((curso) => {
         if (curso.id === cursoIdEditar) {
-          return { ...curso, nombre, nombreAsignatura, cantidadEstudiantes: parseInt(cantidadEstudiantes), seccion, rutProfesor };
+          return { ...curso, nombre, nombreAsignatura, cantidadEstudiantes, seccion, rutProfesor };
         }
         return curso;
       });
@@ -45,7 +47,7 @@ function CursoForm() {
         id: cursos.length + 1,
         nombre,
         nombreAsignatura,
-        cantidadEstudiantes: parseInt(cantidadEstudiantes),
+        cantidadEstudiantes,
         seccion,
         rutProfesor
       };
@@ -53,9 +55,6 @@ function CursoForm() {
     }
 
     setCursos(cursosActualizados);
-    localStorage.setItem('cursos', JSON.stringify(cursosActualizados));
-
-    console.log('Cursos actualizados:', cursosActualizados);
 
     setNombre('');
     setNombreAsignatura('');
@@ -69,7 +68,7 @@ function CursoForm() {
     if (cursoEditar) {
       setNombre(cursoEditar.nombre);
       setNombreAsignatura(cursoEditar.nombreAsignatura);
-      setCantidadEstudiantes(cursoEditar.cantidadEstudiantes.toString());
+      setCantidadEstudiantes(cursoEditar.cantidadEstudiantes);
       setSeccion(cursoEditar.seccion);
       setRutProfesor(cursoEditar.rutProfesor);
       setModoEdicion(true);
@@ -80,9 +79,6 @@ function CursoForm() {
   const eliminarCurso = (id) => {
     const cursosActualizados = cursos.filter((curso) => curso.id !== id);
     setCursos(cursosActualizados);
-    localStorage.setItem('cursos', JSON.stringify(cursosActualizados));
-
-    console.log('Cursos después de eliminar:', cursosActualizados);
   };
 
   const buscarCurso = (e) => {
@@ -91,7 +87,8 @@ function CursoForm() {
 
   const cursosFiltrados = cursos.filter((curso) =>
     curso.nombre.toLowerCase().includes(terminoBusqueda.toLowerCase()) ||
-    curso.nombreAsignatura.toLowerCase().includes(terminoBusqueda.toLowerCase())
+    curso.nombreAsignatura.toLowerCase().includes(terminoBusqueda.toLowerCase()) ||
+    curso.rutProfesor.toLowerCase().includes(terminoBusqueda.toLowerCase())
   );
 
   return (
@@ -112,34 +109,31 @@ function CursoForm() {
               <input
                 type="text"
                 className="form-control"
-                placeholder="Buscar curso por nombre o asignatura"
+                placeholder="Buscar curso por nombre, asignatura o RUT del profesor"
                 value={terminoBusqueda}
                 onChange={buscarCurso}
               />
             </div>
             <div className="row">
-              {cursosFiltrados.map((curso) => {
-                const profesorNombre = profesores.find(prof => prof.rut === curso.rutProfesor)?.nombre || 'Sin profesor';
-                return (
-                  <div key={curso.id} className="col-md-6 mb-3">
-                    <div className="card border-0 shadow-sm">
-                      <div className="card-body">
-                        <h5 className="card-title">{curso.nombre}</h5>
-                        <h6 className="card-subtitle mb-2 text-muted">{curso.nombreAsignatura}</h6>
-                        <p className="card-text">
-                          <small>Cantidad de Estudiantes: {curso.cantidadEstudiantes}</small> <br />
-                          <small>Sección: {curso.seccion}</small> <br />
-                          <small>Profesor: {profesorNombre}</small>
-                        </p>
-                        <div className="d-flex justify-content-between">
-                          <button className="btn btn-sm btn-outline-primary" onClick={() => editarCurso(curso.id)}>Editar</button>
-                          <button className="btn btn-sm btn-outline-danger" onClick={() => eliminarCurso(curso.id)}>Eliminar</button>
-                        </div>
+              {cursosFiltrados.map((curso) => (
+                <div key={curso.id} className="col-md-6 mb-3">
+                  <div className="card border-0 shadow-sm">
+                    <div className="card-body">
+                      <h5 className="card-title">{curso.nombre}</h5>
+                      <h6 className="card-subtitle mb-2 text-muted">{curso.nombreAsignatura}</h6>
+                      <p className="card-text">
+                        <small>Cantidad de Estudiantes: {curso.cantidadEstudiantes}</small> <br />
+                        <small>Sección: {curso.seccion}</small> <br />
+                        <small>Profesor: {curso.rutProfesor}</small>
+                      </p>
+                      <div className="d-flex justify-content-between">
+                        <button className="btn btn-sm btn-outline-primary" onClick={() => editarCurso(curso.id)}>Editar</button>
+                        <button className="btn btn-sm btn-outline-danger" onClick={() => eliminarCurso(curso.id)}>Eliminar</button>
                       </div>
                     </div>
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           </div>
           <div className="col-md-4">
@@ -159,27 +153,27 @@ function CursoForm() {
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="curso-asignatura" className="form-label">Nombre de la Asignatura</label>
+                  <label htmlFor="curso-nombreAsignatura" className="form-label">Nombre de la Asignatura</label>
                   <input
                     type="text"
                     className="form-control"
-                    id="curso-asignatura"
+                    id="curso-nombreAsignatura"
                     value={nombreAsignatura}
                     onChange={(e) => setNombreAsignatura(e.target.value)}
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="curso-cantidad" className="form-label">Cantidad de Estudiantes</label>
+                  <label htmlFor="curso-cantidadEstudiantes" className="form-label">Cantidad de Estudiantes</label>
                   <input
-                    type="number"
+                    type="text"
                     className="form-control"
-                    id="curso-cantidad"
+                    id="curso-cantidadEstudiantes"
                     value={cantidadEstudiantes}
                     onChange={(e) => setCantidadEstudiantes(e.target.value)}
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="curso-seccion" className="form-label">Sección</label>
+                  <label htmlFor="curso-seccion" className="form-label">Sección del Curso</label>
                   <input
                     type="text"
                     className="form-control"
@@ -189,20 +183,14 @@ function CursoForm() {
                   />
                 </div>
                 <div className="mb-3">
-                  <label htmlFor="curso-profesor" className="form-label">Nombre del Profesor</label>
-                  <select
+                  <label htmlFor="curso-rutProfesor" className="form-label">RUT del Profesor</label>
+                  <input
+                    type="text"
                     className="form-control"
-                    id="curso-profesor"
+                    id="curso-rutProfesor"
                     value={rutProfesor}
                     onChange={(e) => setRutProfesor(e.target.value)}
-                  >
-                    <option value="">Selecciona un profesor</option>
-                    {profesores.map((prof) => (
-                      <option key={prof.rut} value={prof.rut}>
-                        {prof.nombre} {prof.apellido}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
                 <button type="button" className="btn btn-primary w-100" onClick={agregarCurso}>
                   {modoEdicion ? 'Guardar Cambios' : 'Agregar'}
@@ -216,4 +204,4 @@ function CursoForm() {
   );
 }
 
-export default CursoForm;
+export default CursosForm;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import data from './datos.json';
+import axios from 'axios';
 
 function ProfesorForm() {
   const [profesores, setProfesores] = useState([]);
@@ -15,10 +15,16 @@ function ProfesorForm() {
   const [terminoBusqueda, setTerminoBusqueda] = useState('');
 
   useEffect(() => {
-    const storedProfesores = JSON.parse(localStorage.getItem('profesores')) || data.profesores;
-    setProfesores(storedProfesores);
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://localhost:3001/api/profesores/import');
+        setProfesores(response.data);
+      } catch (error) {
+        console.error('Error al obtener los datos:', error);
+      }
+    };
 
-    console.log('Profesores:', storedProfesores);
+    fetchData();
   }, []);
 
   const agregarProfesor = () => {
@@ -51,9 +57,6 @@ function ProfesorForm() {
     }
 
     setProfesores(profesoresActualizados);
-    localStorage.setItem('profesores', JSON.stringify(profesoresActualizados));
-
-    console.log('Profesores actualizados:', profesoresActualizados);
 
     setRut('');
     setNombre('');
@@ -80,9 +83,6 @@ function ProfesorForm() {
   const eliminarProfesor = (id) => {
     const profesoresActualizados = profesores.filter((prof) => prof.id !== id);
     setProfesores(profesoresActualizados);
-    localStorage.setItem('profesores', JSON.stringify(profesoresActualizados));
-
-    console.log('Profesores después de eliminar:', profesoresActualizados);
   };
 
   const buscarProfesor = (e) => {
@@ -219,5 +219,3 @@ function ProfesorForm() {
 }
 
 export default ProfesorForm;
-
-
